@@ -13,6 +13,7 @@ namespace CSVColumnStats
         private static readonly char[] DateChars = { ':', '/', '-', ' ', ',', '.', 'A', 'P', 'M', 'a', 'p', 'm' };
         private static readonly int[] varcharLengths = { 1, 2, 10, 50, 100, 500, 2000, 4000, 8000 };
         private static readonly int[] precisionLengths = { 10, 18 };
+
         public int columnIndex;
         public string columnName;
         public string sampleData = "";

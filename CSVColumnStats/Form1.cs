@@ -14,7 +14,9 @@ namespace CSVColumnStats
     public partial class MainWindow : Form
     {
 
-        public string appPath = Path.GetDirectoryName(Application.ExecutablePath);
+        string appPath = Path.GetDirectoryName(Application.ExecutablePath);
+        string filePath = null;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -22,19 +24,69 @@ namespace CSVColumnStats
 
         private void MainWindow_Load(object sender, EventArgs e)
         {
+            watcherProgramDirectory.Path = appPath;
+            watcherProgramDirectory.Created += WatcherProgramDirectory_Created;
+            watcherProgramDirectory.Changed += WatcherProgramDirectory_Changed;
 
+            foreach (var file in new DirectoryInfo(appPath).GetFiles("*.meta"))
+            {
+                AddMetaDataTab(file.Name, file.FullName);
+            }
+        }
+
+        private void WatcherProgramDirectory_Changed(object sender, FileSystemEventArgs e)
+        {
+            AddMetaDataTab(e.Name, e.FullPath);
+        }
+
+        private void WatcherProgramDirectory_Created(object sender, FileSystemEventArgs e)
+        {
+            AddMetaDataTab(e.Name, e.FullPath);
+
+        }
+
+        private void AddMetaDataTab(string name, string path)
+        {
+            if (!tabContainer.Controls.ContainsKey(name))
+            {
+                TabPage newTab = new TabPage();
+                newTab.Text = name;
+                newTab.Name = name;
+
+                RichTextBox newMetaData = new RichTextBox();
+                newMetaData.Dock = DockStyle.Fill;
+                newMetaData.Name = name + "MetaData";
+                newMetaData.Text = File.ReadAllText(path);
+
+                newTab.Controls.Add(newMetaData);
+                tabContainer.Controls.Add(newTab);
+                newTab.Show();
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            runProcess();
+            processFile();
         }
 
-        private void runProcess()
+        private void processFile()
         {
-            var CSVFile = new CSVFile(
-                @"C:\Users\danth\source\repos\CSVColumnStats\TestData\2008.csv\2008.csv", ",", "\n", true, true, 500000);
+            CSVFile csvFile;
+            if (filePath != null)
+            {
+                csvFile = new CSVFile(
+                    filePath, ",", "\n", true, true, 500000);
+            }
         }
 
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            openFileDialog.ShowDialog();
+            filePath = openFileDialog.FileName;
+            Console.WriteLine(filePath);
+            txtBoxFilePath.Text = filePath;
+            var preview = new Preview(filePath, 2048, txtBoxFilePreview);
+
+        }
     }
 }

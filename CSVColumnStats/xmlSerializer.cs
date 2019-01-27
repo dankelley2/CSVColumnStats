@@ -57,6 +57,7 @@ namespace CSVColumnStats
             XmlTextWriter xmlWriter;
             xmlWriter = new XmlTextWriter(memStream, Encoding.UTF8);
             xmlWriter.Namespaces = true;
+            xmlWriter.Formatting = Formatting.Indented;
             ser.Serialize(xmlWriter, Obj, GetNamespaces());
             xmlWriter.Close();
             memStream.Close();

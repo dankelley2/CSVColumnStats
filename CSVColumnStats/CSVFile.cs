@@ -11,6 +11,7 @@ namespace CSVColumnStats
 {
     public class CSVFile
     {
+        //Params
         public string       FILE_PATH;
         public Delimiter    COLUMN_SEPARATOR;
         public Delimiter    ROW_SEPARATOR;
@@ -18,10 +19,16 @@ namespace CSVColumnStats
         public bool         TEXT_QUALIFIED;
         public int          NUM_SAMPLE_LINES;
 
-        public List<Column> columnList = new List<Column>();
+        //Derived Vars
         public string       fileName;
         public string       fileDirectory;
-        public string       metaSQL;
+
+        //Stat Vars
+        public long         msTimeToProcess;
+        public long         numCharsProcessed;
+        public float        kbDataProcessed;
+        public string       metaDataSQL;
+        public List<Column> columnList = new List<Column>();
 
         private string      appPath = Path.GetDirectoryName(Application.ExecutablePath);
         private char[]      charBuffer = new char[20480];
@@ -120,12 +127,7 @@ namespace CSVColumnStats
                     sb.Append(Col.ToString());
                 }
 
-                using (StreamWriter writer = new StreamWriter(
-                    appPath + Path.DirectorySeparatorChar + fileName + @".meta", false))
-                {
-                    writer.Write(SerializeColumns(this));
-                }
-
+                // File stat vars
                 var strTable = 
                     "DROP TABLE IF EXISTS #Columns\r\n"
                     + "CREATE TABLE #Columns([ColIndex] int, [Name] varchar(200), [ReccomendedType] varchar(200), [MaxLength] int, [NonZeroMinLength] int, [ReccomendedLength] int, [IsNumeric] varchar(5), [Precision] int, [Scale] int, [IsDate] varchar(5), [Sample] varchar(max))\r\n"
@@ -133,12 +135,24 @@ namespace CSVColumnStats
                     + sb.ToString().Substring(1)
                     + "SELECT * FROM #Columns ORDER BY ColIndex";
 
-                metaSQL = strTable;
+                metaDataSQL = strTable;
+                numCharsProcessed = charBufferOffset;
+                msTimeToProcess = watch.ElapsedMilliseconds;
+                kbDataProcessed = numCharsProcessed / 1024;
 
-                Console.WriteLine(metaSQL);
+                //Serialize stream
+                using (StreamWriter writer = new StreamWriter(
+                    appPath + Path.DirectorySeparatorChar + fileName + @".meta", false))
+                {
+                    writer.Write(SerializeColumns(this));
+                }
+
+                //Debug output
+                Console.WriteLine(metaDataSQL);
                 Console.WriteLine((rowBreakList.Count - 1).ToString() + " Rows Processed.");
                 Console.WriteLine((watch.ElapsedTicks / rowBreakList.Count).ToString() + " ticks per row.");
                 Console.WriteLine(watch.ElapsedMilliseconds.ToString() + "ms Total.");
+                Console.WriteLine(kbDataProcessed.ToString("0.00") + " kb processed.");
                 Console.WriteLine("Done");
             }
             return fileName;

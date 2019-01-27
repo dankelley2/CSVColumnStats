@@ -33,7 +33,7 @@ namespace CSVColumnStats
         private void runProcess()
         {
             var CSVFile = new CSVFile(
-                @"\\pitsvfil01\Shared\Subro\ArbForum\OpenReport\OpenArb012519 Copy.csv", ",", "\r\n", true, true, 1415);
+                @"C:\Users\danth\source\repos\CSVColumnStats\TestData\2008.csv\2008.csv", ",", "\n", true, true, 500000);
         }
 
     }

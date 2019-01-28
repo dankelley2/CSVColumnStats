@@ -23,7 +23,8 @@ namespace CSVColumnStats
             {@",",Color.Black },
             {@"\[CR\]",Color.DarkBlue },
             {@"\[LF\]",Color.DarkGreen },
-            {"\"",Color.DarkRed }
+            {"\"",Color.DarkRed },
+            {@"\|",Color.Black }
         };
 
         private string _filePath;

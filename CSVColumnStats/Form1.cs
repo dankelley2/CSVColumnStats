@@ -16,6 +16,14 @@ namespace CSVColumnStats
 
         string appPath = Path.GetDirectoryName(Application.ExecutablePath);
         string filePath = null;
+        TabPage targetTab = null;
+        Dictionary<string, string> dictRowDelimiters
+            = new Dictionary<string, string>() {
+                {"[CR][LF]","\r\n"},
+                {"[CR]","\r"},
+                {"[LF]","\n"},
+            };
+
 
         public MainWindow()
         {
@@ -27,6 +35,11 @@ namespace CSVColumnStats
             watcherProgramDirectory.Path = appPath;
             watcherProgramDirectory.Created += WatcherProgramDirectory_Created;
             watcherProgramDirectory.Changed += WatcherProgramDirectory_Changed;
+
+            // Set up checked settings
+            CheckBoxHasHeaders.Checked = true;
+            checkBoxIsTextQualified.Checked = true;
+            tabContainer.MouseClick += tabContainer_MouseClick;
 
             foreach (var file in new DirectoryInfo(appPath).GetFiles("*.meta"))
             {
@@ -47,20 +60,30 @@ namespace CSVColumnStats
 
         private void AddMetaDataTab(string name, string path)
         {
-            if (!tabContainer.Controls.ContainsKey(name))
+            if (!tabContainer.Controls.ContainsKey(path))
             {
                 TabPage newTab = new TabPage();
                 newTab.Text = name;
-                newTab.Name = name;
-
+                newTab.Name = path;
                 RichTextBox newMetaData = new RichTextBox();
                 newMetaData.Dock = DockStyle.Fill;
                 newMetaData.Name = name + "MetaData";
                 newMetaData.Text = File.ReadAllText(path);
+                newMetaData.Font = new Font("Consolas", 8, FontStyle.Regular);
 
                 newTab.Controls.Add(newMetaData);
                 tabContainer.Controls.Add(newTab);
                 newTab.Show();
+            }
+        }
+
+        private void tabContainer_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right )
+            {
+                var type = sender.GetType();
+
+                this.contextMenuStripTabs.Show(this, e.Location);
             }
         }
 
@@ -72,11 +95,36 @@ namespace CSVColumnStats
         private void processFile()
         {
             CSVFile csvFile;
-            if (filePath != null)
+            if (filePath != null && checkSettings())
             {
                 csvFile = new CSVFile(
-                    filePath, ",", "\n", true, true, 500000);
+                    filePath, txtFieldDelimiter.Text
+                    , dictRowDelimiters[comboBoxRowDelimiter.SelectedItem.ToString()]
+                    , true
+                    , true
+                    , (int)numericUpDownSampleRows.Value
+                    );
             }
+        }
+
+        private bool checkSettings()
+        {
+            if (txtFieldDelimiter.Text.Length < 1)
+            {
+                return false;
+            }
+            
+            if (dictRowDelimiters[comboBoxRowDelimiter.SelectedItem.ToString()] == null)
+            {
+                return false;
+            }
+
+            if (txtBoxFilePreview.Text == "")
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -85,8 +133,60 @@ namespace CSVColumnStats
             filePath = openFileDialog.FileName;
             Console.WriteLine(filePath);
             txtBoxFilePath.Text = filePath;
-            var preview = new Preview(filePath, 2048, txtBoxFilePreview);
 
+            txtBoxFilePreview.Visible = false;
+
+            var preview = new Preview(filePath, 5000, txtBoxFilePreview);
+
+            txtBoxFilePreview.Visible = true;
+
+
+        }
+
+        private void txtFieldDelimiter_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void contextMenuStripTabs_Opening(object sender, CancelEventArgs e)
+        {
+            Point p = tabContainer.PointToClient(Cursor.Position);
+            for (int i = 0; i < tabContainer.TabCount; i++)
+            {
+                Rectangle r = tabContainer.GetTabRect(i);
+                if (r.Contains(p))
+                {
+                    tabContainer.SelectedIndex = i; // i is the index of tab under cursor
+                    if (tabContainer.SelectedTab.Name == "tabSettings")
+                    {
+                        targetTab = null;
+                    }
+                    else
+                    {
+                        targetTab = tabContainer.SelectedTab;
+                        return;
+                    }
+                    
+                }
+            }
+            e.Cancel = true;
+        }
+
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (targetTab != null)
+            {
+                tabContainer.Controls.Remove(targetTab);
+            }
+        }
+
+        private void deleteMetaFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (targetTab != null)
+            {
+                File.Delete(targetTab.Name);
+                tabContainer.Controls.Remove(targetTab);
+            }
         }
     }
 }

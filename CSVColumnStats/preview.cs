@@ -73,7 +73,8 @@ namespace CSVColumnStats
                 rtb.SelectionStart = m.Index;
                 rtb.SelectionLength = m.Length;
                 rtb.SelectionColor = foreColor;
-                rtb.SelectionBackColor = rtb.BackColor;
+                rtb.SelectionFont = new Font(rtb.Font, FontStyle.Bold);
+                //rtb.SelectionBackColor = rtb.BackColor;
             }
 
             return matches.Count;

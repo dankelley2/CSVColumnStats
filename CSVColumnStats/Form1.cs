@@ -89,21 +89,29 @@ namespace CSVColumnStats
 
         private void button1_Click(object sender, EventArgs e)
         {
+            var progressIndicator = new Progress<MyTaskProgressReport>(reportProgress);
             processFile();
+        }
+
+        private void reportProgress(MyTaskProgressReport progress)
+        {
+
+            //label1.Text = progress.CurrentProgressMessage;
+            Console.WriteLine(string.Format("{0} out of {1}", progress.CurrentProgressAmount, progress.TotalProgressAmount));
         }
 
         private void processFile()
         {
-            CSVFile csvFile;
             if (filePath != null && checkSettings())
             {
-                csvFile = new CSVFile(
-                    filePath, txtFieldDelimiter.Text
-                    , dictRowDelimiters[comboBoxRowDelimiter.SelectedItem.ToString()]
-                    , true
-                    , true
-                    , (int)numericUpDownSampleRows.Value
-                    );
+                new CSVFile(
+                        filePath
+                        , txtFieldDelimiter.Text
+                        , dictRowDelimiters[comboBoxRowDelimiter.SelectedItem.ToString()]
+                        , true
+                        , true
+                        , (int)numericUpDownSampleRows.Value
+                        );
             }
         }
 
@@ -189,4 +197,17 @@ namespace CSVColumnStats
             }
         }
     }
+
+    public class MyTaskProgressReport
+    {
+        //current progress
+        public int CurrentProgressAmount { get; set; }
+
+        //total progress
+        public int TotalProgressAmount { get; set; }
+
+        //some message to pass to the UI of current progress
+        public string CurrentProgressMessage { get; set; }
+    }
+    
 }

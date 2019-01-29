@@ -42,6 +42,7 @@ namespace CSVColumnStats
         private List<long>  rowBreakList = new List<long>(){0};
         private bool        quotesOpen = false;
         private bool        trimNextField = false;
+        private IProgress<MyTaskProgressReport> progress;
 
         //DEBUG
         Stopwatch watch;
@@ -276,6 +277,24 @@ namespace CSVColumnStats
         private void AddRow(long streamOffset)
         {
             rowBreakList.Add(streamOffset);
+            if (rowBreakList.Count % 10 == 0)
+            {
+                //progress.Report(
+                //    new MyTaskProgressReport {
+                //        CurrentProgressAmount = rowBreakList.Count,
+                //        TotalProgressAmount = NUM_SAMPLE_LINES,
+                //        CurrentProgressMessage = 
+                //            string.Format("Processing row {0} of {1}"
+                //            , rowBreakList.Count)
+                //    });
+            }
+        }
+
+        private void metaDataUpdateAndExport()
+        {
+            refreshMetaDataVariables();
+            outputXMLStream();
+            //outputConsoleStats();
         }
 
         private void outputConsoleStats()
@@ -297,13 +316,6 @@ namespace CSVColumnStats
             {
                 writer.Write(xmlSerializer.SerializeCSVFile(this));
             }
-        }
-
-        private void metaDataUpdateAndExport()
-        {
-            refreshMetaDataVariables();
-            outputXMLStream();
-            outputConsoleStats();
         }
 
         private void refreshMetaDataVariables()

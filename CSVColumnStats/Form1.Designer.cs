@@ -34,6 +34,7 @@
             this.tabSettings = new System.Windows.Forms.TabPage();
             this.contextMenuStripTabs = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteMetaFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitSettingsWindow = new System.Windows.Forms.SplitContainer();
             this.groupBoxMiscSettings = new System.Windows.Forms.GroupBox();
             this.checkBoxIsTextQualified = new System.Windows.Forms.CheckBox();
@@ -43,6 +44,7 @@
             this.groupBoxDelimiter = new System.Windows.Forms.GroupBox();
             this.txtFieldDelimiter = new System.Windows.Forms.TextBox();
             this.groupBoxLineEnding = new System.Windows.Forms.GroupBox();
+            this.comboBoxRowDelimiter = new System.Windows.Forms.ComboBox();
             this.txtBoxFilePath = new System.Windows.Forms.TextBox();
             this.groupBoxPreview = new System.Windows.Forms.GroupBox();
             this.txtBoxFilePreview = new System.Windows.Forms.RichTextBox();
@@ -54,8 +56,6 @@
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.watcherProgramDirectory = new System.IO.FileSystemWatcher();
-            this.comboBoxRowDelimiter = new System.Windows.Forms.ComboBox();
-            this.deleteMetaFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabContainer.SuspendLayout();
             this.tabSettings.SuspendLayout();
             this.contextMenuStripTabs.SuspendLayout();
@@ -113,7 +113,7 @@
             this.closeToolStripMenuItem,
             this.deleteMetaFileToolStripMenuItem});
             this.contextMenuStripTabs.Name = "contextMenuStrip1";
-            this.contextMenuStripTabs.Size = new System.Drawing.Size(159, 70);
+            this.contextMenuStripTabs.Size = new System.Drawing.Size(159, 48);
             this.contextMenuStripTabs.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripTabs_Opening);
             // 
             // closeToolStripMenuItem
@@ -122,6 +122,13 @@
             this.closeToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.closeToolStripMenuItem.Text = "Close Meta File";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
+            // 
+            // deleteMetaFileToolStripMenuItem
+            // 
+            this.deleteMetaFileToolStripMenuItem.Name = "deleteMetaFileToolStripMenuItem";
+            this.deleteMetaFileToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.deleteMetaFileToolStripMenuItem.Text = "Delete Meta File";
+            this.deleteMetaFileToolStripMenuItem.Click += new System.EventHandler(this.deleteMetaFileToolStripMenuItem_Click);
             // 
             // splitSettingsWindow
             // 
@@ -268,6 +275,23 @@
             this.groupBoxLineEnding.TabStop = false;
             this.groupBoxLineEnding.Text = "Row Delimiter Sequence";
             // 
+            // comboBoxRowDelimiter
+            // 
+            this.comboBoxRowDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.comboBoxRowDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+            this.comboBoxRowDelimiter.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.comboBoxRowDelimiter.Font = new System.Drawing.Font("Consolas", 15.75F);
+            this.comboBoxRowDelimiter.FormattingEnabled = true;
+            this.comboBoxRowDelimiter.Items.AddRange(new object[] {
+            "[CR][LF]",
+            "[CR]",
+            "[LF]"});
+            this.comboBoxRowDelimiter.Location = new System.Drawing.Point(3, 16);
+            this.comboBoxRowDelimiter.Name = "comboBoxRowDelimiter";
+            this.comboBoxRowDelimiter.Size = new System.Drawing.Size(159, 32);
+            this.comboBoxRowDelimiter.TabIndex = 0;
+            this.comboBoxRowDelimiter.Text = "[CR][LF]";
+            // 
             // txtBoxFilePath
             // 
             this.txtBoxFilePath.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -365,30 +389,6 @@
             this.watcherProgramDirectory.EnableRaisingEvents = true;
             this.watcherProgramDirectory.Filter = "*.meta";
             this.watcherProgramDirectory.SynchronizingObject = this;
-            // 
-            // comboBoxRowDelimiter
-            // 
-            this.comboBoxRowDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.comboBoxRowDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
-            this.comboBoxRowDelimiter.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.comboBoxRowDelimiter.Font = new System.Drawing.Font("Consolas", 15.75F);
-            this.comboBoxRowDelimiter.FormattingEnabled = true;
-            this.comboBoxRowDelimiter.Items.AddRange(new object[] {
-            "[CR][LF]",
-            "[CR]",
-            "[LF]"});
-            this.comboBoxRowDelimiter.Location = new System.Drawing.Point(3, 16);
-            this.comboBoxRowDelimiter.Name = "comboBoxRowDelimiter";
-            this.comboBoxRowDelimiter.Size = new System.Drawing.Size(159, 32);
-            this.comboBoxRowDelimiter.TabIndex = 0;
-            this.comboBoxRowDelimiter.Text = "[CR][LF]";
-            // 
-            // deleteMetaFileToolStripMenuItem
-            // 
-            this.deleteMetaFileToolStripMenuItem.Name = "deleteMetaFileToolStripMenuItem";
-            this.deleteMetaFileToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
-            this.deleteMetaFileToolStripMenuItem.Text = "Delete Meta File";
-            this.deleteMetaFileToolStripMenuItem.Click += new System.EventHandler(this.deleteMetaFileToolStripMenuItem_Click);
             // 
             // MainWindow
             // 

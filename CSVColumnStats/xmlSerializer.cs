@@ -27,7 +27,6 @@ namespace CSVColumnStats
 
         }
 
-
         //Creates an object from an XML string.
         public static object FromXml(string Xml, System.Type ObjType)
         {
@@ -67,6 +66,18 @@ namespace CSVColumnStats
             xml = xml.Substring(0, (xml.LastIndexOf(Convert.ToChar(62)) + 1));
             return xml;
 
+        }
+
+        //Serializes a CSVFile Object
+        public static string SerializeCSVFile(CSVFile csvF)
+        {
+            return xmlSerializer.ToXml(csvF, typeof(CSVFile));
+        }
+
+        //Deserializes a CSVFile Object
+        public static CSVFile SerializeCSVFile(string csvFileXML)
+        {
+            return (CSVFile)xmlSerializer.FromXml(csvFileXML, typeof(CSVFile));
         }
 
     }

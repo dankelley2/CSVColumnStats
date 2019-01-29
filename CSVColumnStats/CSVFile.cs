@@ -34,12 +34,12 @@ namespace CSVColumnStats
 
         private string      appPath = Path.GetDirectoryName(Application.ExecutablePath);
         private char[]      charBuffer = new char[20480];
-        private int         charBufferOffset = 0;
+        private long        charBufferOffset = 0;
         private char[]      fieldBuffer = new char[500000];
         private int         fieldBufferWriteIndex = -1;
-        private int         fieldBufferStartIndex = -1;
-        private int         columnIndex = 0;
-        private List<int>   rowBreakList = new List<int>(){0};
+        private int        fieldBufferStartIndex = -1;
+        private long        columnIndex = 0;
+        private List<long>  rowBreakList = new List<long>(){0};
         private bool        quotesOpen = false;
         private bool        trimNextField = false;
 
@@ -147,7 +147,7 @@ namespace CSVColumnStats
             if (fieldBufferWriteIndex - amt < 0)
             {
                 var diff = fieldBufferWriteIndex - amt;
-                fieldBufferWriteIndex = (fieldBuffer.Length - 1) + diff;
+                fieldBufferWriteIndex = (fieldBuffer.Length) + diff;
             }
             else
             {
@@ -202,12 +202,12 @@ namespace CSVColumnStats
                 fieldData = new char[numChars-1];
                 for (int i = fieldBufferStartIndex + 1; i < fieldBuffer.Length; i++)
                 {
-                    fieldData[fieldDataIndex] += fieldBuffer[i];
+                    fieldData[fieldDataIndex] = fieldBuffer[i];
                     fieldDataIndex++;
                 }
                 for (int i = 0; i < fieldBufferWriteIndex; i++)
                 {
-                    fieldData[fieldDataIndex] += fieldBuffer[i];
+                    fieldData[fieldDataIndex] = fieldBuffer[i];
                     fieldDataIndex++;
                 }
             }
@@ -273,7 +273,7 @@ namespace CSVColumnStats
             }
         }
 
-        private void AddRow(int streamOffset)
+        private void AddRow(long streamOffset)
         {
             rowBreakList.Add(streamOffset);
         }

@@ -28,6 +28,15 @@ namespace CSVColumnStats
             this.chars = strDelim.ToCharArray();
         }
 
+        public Delimiter(char[] strDelim)
+        {
+            if (strDelim.Length == 0)
+            {
+                throw new Exception("Delimiter was zero length");
+            }
+            this.chars = strDelim;
+        }
+
         private int charsRemaining(char c)
         {
             if (currentChar == c)

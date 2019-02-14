@@ -33,9 +33,14 @@
             this.tabContainer = new System.Windows.Forms.TabControl();
             this.tabSettings = new System.Windows.Forms.TabPage();
             this.contextMenuStripTabs = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.actionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyAnylysisSQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyTableSQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteMetaFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitSettingsWindow = new System.Windows.Forms.SplitContainer();
+            this.fileSampleProgressBar = new System.Windows.Forms.ProgressBar();
             this.groupBoxMiscSettings = new System.Windows.Forms.GroupBox();
             this.checkBoxIsTextQualified = new System.Windows.Forms.CheckBox();
             this.CheckBoxHasHeaders = new System.Windows.Forms.CheckBox();
@@ -55,7 +60,10 @@
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.watcherProgramDirectory = new System.IO.FileSystemWatcher();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.actionsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyAnylysisSQLToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyTableSQLToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.tabContainer.SuspendLayout();
             this.tabSettings.SuspendLayout();
             this.contextMenuStripTabs.SuspendLayout();
@@ -70,7 +78,6 @@
             this.groupBoxLineEnding.SuspendLayout();
             this.groupBoxPreview.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.watcherProgramDirectory)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -93,6 +100,7 @@
             this.tabContainer.SelectedIndex = 0;
             this.tabContainer.Size = new System.Drawing.Size(871, 450);
             this.tabContainer.TabIndex = 1;
+            this.tabContainer.TabIndexChanged += new System.EventHandler(this.tabContainer_TabIndexChanged);
             // 
             // tabSettings
             // 
@@ -110,24 +118,54 @@
             // contextMenuStripTabs
             // 
             this.contextMenuStripTabs.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.actionsToolStripMenuItem,
+            this.toolStripSeparator1,
             this.closeToolStripMenuItem,
             this.deleteMetaFileToolStripMenuItem});
             this.contextMenuStripTabs.Name = "contextMenuStrip1";
-            this.contextMenuStripTabs.Size = new System.Drawing.Size(159, 48);
+            this.contextMenuStripTabs.Size = new System.Drawing.Size(159, 76);
             this.contextMenuStripTabs.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStripTabs_Opening);
+            // 
+            // actionsToolStripMenuItem
+            // 
+            this.actionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.copyAnylysisSQLToolStripMenuItem,
+            this.copyTableSQLToolStripMenuItem});
+            this.actionsToolStripMenuItem.Name = "actionsToolStripMenuItem";
+            this.actionsToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.actionsToolStripMenuItem.Text = "&Actions";
+            // 
+            // copyAnylysisSQLToolStripMenuItem
+            // 
+            this.copyAnylysisSQLToolStripMenuItem.Name = "copyAnylysisSQLToolStripMenuItem";
+            this.copyAnylysisSQLToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.copyAnylysisSQLToolStripMenuItem.Text = "Copy &Anylysis SQL";
+            this.copyAnylysisSQLToolStripMenuItem.Click += new System.EventHandler(this.copyAnylysisSQLToolStripMenuItem_Click);
+            // 
+            // copyTableSQLToolStripMenuItem
+            // 
+            this.copyTableSQLToolStripMenuItem.Name = "copyTableSQLToolStripMenuItem";
+            this.copyTableSQLToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.copyTableSQLToolStripMenuItem.Text = "Copy &Table SQL";
+            this.copyTableSQLToolStripMenuItem.Click += new System.EventHandler(this.copyTableSQLToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(155, 6);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
             this.closeToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
-            this.closeToolStripMenuItem.Text = "Close Meta File";
+            this.closeToolStripMenuItem.Text = "&Close Meta File";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // deleteMetaFileToolStripMenuItem
             // 
             this.deleteMetaFileToolStripMenuItem.Name = "deleteMetaFileToolStripMenuItem";
             this.deleteMetaFileToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
-            this.deleteMetaFileToolStripMenuItem.Text = "Delete Meta File";
+            this.deleteMetaFileToolStripMenuItem.Text = "&Delete Meta File";
             this.deleteMetaFileToolStripMenuItem.Click += new System.EventHandler(this.deleteMetaFileToolStripMenuItem_Click);
             // 
             // splitSettingsWindow
@@ -139,6 +177,7 @@
             // 
             // splitSettingsWindow.Panel1
             // 
+            this.splitSettingsWindow.Panel1.Controls.Add(this.fileSampleProgressBar);
             this.splitSettingsWindow.Panel1.Controls.Add(this.groupBoxMiscSettings);
             this.splitSettingsWindow.Panel1.Controls.Add(this.groupBoxSampleRows);
             this.splitSettingsWindow.Panel1.Controls.Add(this.groupBoxDelimiter);
@@ -157,6 +196,16 @@
             this.splitSettingsWindow.SplitterDistance = 175;
             this.splitSettingsWindow.TabIndex = 2;
             // 
+            // fileSampleProgressBar
+            // 
+            this.fileSampleProgressBar.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.fileSampleProgressBar.Location = new System.Drawing.Point(5, 376);
+            this.fileSampleProgressBar.Name = "fileSampleProgressBar";
+            this.fileSampleProgressBar.Size = new System.Drawing.Size(165, 10);
+            this.fileSampleProgressBar.Step = 1;
+            this.fileSampleProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.fileSampleProgressBar.TabIndex = 5;
+            // 
             // groupBoxMiscSettings
             // 
             this.groupBoxMiscSettings.Controls.Add(this.checkBoxIsTextQualified);
@@ -174,7 +223,6 @@
             this.checkBoxIsTextQualified.AutoSize = true;
             this.checkBoxIsTextQualified.Checked = true;
             this.checkBoxIsTextQualified.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxIsTextQualified.Enabled = false;
             this.checkBoxIsTextQualified.Location = new System.Drawing.Point(7, 43);
             this.checkBoxIsTextQualified.Name = "checkBoxIsTextQualified";
             this.checkBoxIsTextQualified.Size = new System.Drawing.Size(102, 17);
@@ -187,7 +235,6 @@
             this.CheckBoxHasHeaders.AutoSize = true;
             this.CheckBoxHasHeaders.Checked = true;
             this.CheckBoxHasHeaders.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.CheckBoxHasHeaders.Enabled = false;
             this.CheckBoxHasHeaders.Location = new System.Drawing.Point(7, 20);
             this.CheckBoxHasHeaders.Name = "CheckBoxHasHeaders";
             this.CheckBoxHasHeaders.Size = new System.Drawing.Size(88, 17);
@@ -317,7 +364,8 @@
             // txtBoxFilePreview
             // 
             this.txtBoxFilePreview.AcceptsTab = true;
-            this.txtBoxFilePreview.BackColor = System.Drawing.Color.White;
+            this.txtBoxFilePreview.AutoWordSelection = true;
+            this.txtBoxFilePreview.BackColor = System.Drawing.Color.Black;
             this.txtBoxFilePreview.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtBoxFilePreview.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtBoxFilePreview.HideSelection = false;
@@ -334,7 +382,8 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.helpToolStripMenuItem});
+            this.helpToolStripMenuItem,
+            this.actionsToolStripMenuItem1});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(871, 24);
@@ -362,6 +411,7 @@
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -384,14 +434,34 @@
             this.openFileDialog.ReadOnlyChecked = true;
             this.openFileDialog.ShowReadOnly = true;
             // 
-            // watcherProgramDirectory
+            // backgroundWorker1
             // 
-            this.watcherProgramDirectory.EnableRaisingEvents = true;
-            this.watcherProgramDirectory.Filter = "*.meta";
-            this.watcherProgramDirectory.SynchronizingObject = this;
+            this.backgroundWorker1.WorkerReportsProgress = true;
+            // 
+            // actionsToolStripMenuItem1
+            // 
+            this.actionsToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.copyAnylysisSQLToolStripMenuItem1,
+            this.copyTableSQLToolStripMenuItem1});
+            this.actionsToolStripMenuItem1.Name = "actionsToolStripMenuItem1";
+            this.actionsToolStripMenuItem1.Size = new System.Drawing.Size(59, 20);
+            this.actionsToolStripMenuItem1.Text = "&Actions";
+            // 
+            // copyAnylysisSQLToolStripMenuItem1
+            // 
+            this.copyAnylysisSQLToolStripMenuItem1.Name = "copyAnylysisSQLToolStripMenuItem1";
+            this.copyAnylysisSQLToolStripMenuItem1.Size = new System.Drawing.Size(172, 22);
+            this.copyAnylysisSQLToolStripMenuItem1.Text = "Copy &Anylysis SQL";
+            // 
+            // copyTableSQLToolStripMenuItem1
+            // 
+            this.copyTableSQLToolStripMenuItem1.Name = "copyTableSQLToolStripMenuItem1";
+            this.copyTableSQLToolStripMenuItem1.Size = new System.Drawing.Size(172, 22);
+            this.copyTableSQLToolStripMenuItem1.Text = "Copy &Table SQL";
             // 
             // MainWindow
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
@@ -422,7 +492,6 @@
             this.groupBoxPreview.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.watcherProgramDirectory)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -444,7 +513,6 @@
         private System.Windows.Forms.RichTextBox txtBoxFilePreview;
         private System.Windows.Forms.TextBox txtBoxFilePath;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
-        private System.IO.FileSystemWatcher watcherProgramDirectory;
         private System.Windows.Forms.GroupBox groupBoxLineEnding;
         private System.Windows.Forms.GroupBox groupBoxDelimiter;
         private System.Windows.Forms.TextBox txtFieldDelimiter;
@@ -457,6 +525,15 @@
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.ComboBox comboBoxRowDelimiter;
         private System.Windows.Forms.ToolStripMenuItem deleteMetaFileToolStripMenuItem;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.ProgressBar fileSampleProgressBar;
+        private System.Windows.Forms.ToolStripMenuItem actionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem copyAnylysisSQLToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem copyTableSQLToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem actionsToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem copyAnylysisSQLToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem copyTableSQLToolStripMenuItem1;
     }
 }
 

@@ -241,3 +241,4 @@ ModelManifest.xml
 # FAKE - F# Make
 .fake/
 /CSVAnalyzer_V1.mp4
+/TestFiles

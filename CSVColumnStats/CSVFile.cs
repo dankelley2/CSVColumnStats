@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 
 namespace CSVColumnStats
 {
@@ -27,12 +27,13 @@ namespace CSVColumnStats
         //Stat Vars
         public long         msTimeToProcess;
         public long         numCharsProcessed;
+        public long         numRowsProcessed;
         public float        kbDataProcessed;
         public string       metaDataSQL;
         public string       SQLTableCreateStatement;
         public List<Column> columnList = new List<Column>();
 
-        private string      appPath = Path.GetDirectoryName(Application.ExecutablePath);
+        private string      APP_PATH;
         private char[]      charBuffer = new char[20480];
         private long        charBufferOffset = 0;
         private char[]      fieldBuffer = new char[500000];
@@ -42,7 +43,8 @@ namespace CSVColumnStats
         private List<long>  rowBreakList = new List<long>(){0};
         private bool        quotesOpen = false;
         private bool        trimNextField = false;
-        private IProgress<MyTaskProgressReport> progress;
+        private bool        abort = false;
+        private BackgroundWorker BGWWorker;
 
         //DEBUG
         Stopwatch watch;
@@ -51,15 +53,16 @@ namespace CSVColumnStats
 
         }
 
-        public CSVFile(string FILE_PATH, string COLUMN_SEPARATOR, string ROW_SEPARATOR,
-                        bool HAS_HEADERS, bool TEXT_QUALIFIED, int NUM_SAMPLE_LINES)
+        public CSVFile(List<object> arguments)
         {
-            this.FILE_PATH = FILE_PATH;
-            this.COLUMN_SEPARATOR =  new Delimiter(COLUMN_SEPARATOR);
-            this.ROW_SEPARATOR    =  new Delimiter(ROW_SEPARATOR);
-            this.HAS_HEADERS      =  HAS_HEADERS;
-            this.TEXT_QUALIFIED   =  TEXT_QUALIFIED;
-            this.NUM_SAMPLE_LINES =  NUM_SAMPLE_LINES;
+            this.FILE_PATH = (string)arguments[0];
+            this.COLUMN_SEPARATOR = new Delimiter((string)arguments[1]);
+            this.ROW_SEPARATOR = new Delimiter((string)arguments[2]);
+            this.HAS_HEADERS = (bool)arguments[3];
+            this.TEXT_QUALIFIED = (bool)arguments[4];
+            this.NUM_SAMPLE_LINES = (int)arguments[5];
+            this.APP_PATH = (string)arguments[6];
+            this.BGWWorker = (BackgroundWorker)arguments[7];
 
             if (true)//checkFileIntegrity())
             {
@@ -67,7 +70,34 @@ namespace CSVColumnStats
                 this.fileNameNoExt = Path.GetFileNameWithoutExtension(FILE_PATH);
                 this.fileDirectory = Path.GetDirectoryName(FILE_PATH);
                 getColumnStats();
-                metaDataUpdateAndExport();
+                if (!abort)
+                {
+                    metaDataUpdateAndExport();
+                }
+            }
+
+        }
+        public CSVFile(string FILE_PATH, string COLUMN_SEPARATOR, string ROW_SEPARATOR,
+                        bool HAS_HEADERS, bool TEXT_QUALIFIED, int NUM_SAMPLE_LINES, string AppPath)
+        {
+            this.FILE_PATH = FILE_PATH;
+            this.COLUMN_SEPARATOR = new Delimiter(COLUMN_SEPARATOR);
+            this.ROW_SEPARATOR = new Delimiter(ROW_SEPARATOR);
+            this.HAS_HEADERS = HAS_HEADERS;
+            this.TEXT_QUALIFIED = TEXT_QUALIFIED;
+            this.NUM_SAMPLE_LINES = NUM_SAMPLE_LINES;
+            this.APP_PATH = AppPath;
+
+            if (true)//checkFileIntegrity())
+            {
+                this.fileName = Path.GetFileName(FILE_PATH);
+                this.fileNameNoExt = Path.GetFileNameWithoutExtension(FILE_PATH);
+                this.fileDirectory = Path.GetDirectoryName(FILE_PATH);
+                getColumnStats();
+                if (!abort)
+                {
+                    metaDataUpdateAndExport();
+                }
             }
 
         }
@@ -82,6 +112,13 @@ namespace CSVColumnStats
                     // Read chars into buffer
                     var charsRead = (char)sourceFS.Read(charBuffer, 0, charBuffer.Length);
                     charBufferOffset += charsRead;
+
+                    //Check for cancellation
+                    if (BGWWorker.CancellationPending)
+                    {
+                        abort = true;
+                        break;
+                    }
 
                     // Loop through buffer
                     for (int i = 0; i < charsRead; i++)
@@ -279,14 +316,7 @@ namespace CSVColumnStats
             rowBreakList.Add(streamOffset);
             if (rowBreakList.Count % 10 == 0)
             {
-                //progress.Report(
-                //    new MyTaskProgressReport {
-                //        CurrentProgressAmount = rowBreakList.Count,
-                //        TotalProgressAmount = NUM_SAMPLE_LINES,
-                //        CurrentProgressMessage = 
-                //            string.Format("Processing row {0} of {1}"
-                //            , rowBreakList.Count)
-                //    });
+                BGWWorker.ReportProgress((int)((float)rowBreakList.Count*100 / (float)NUM_SAMPLE_LINES),"Analyzing...");
             }
         }
 
@@ -294,28 +324,6 @@ namespace CSVColumnStats
         {
             refreshMetaDataVariables();
             outputXMLStream();
-            //outputConsoleStats();
-        }
-
-        private void outputConsoleStats()
-        {
-            //Debug output
-            Console.WriteLine(metaDataSQL);
-            Console.WriteLine((rowBreakList.Count - 1).ToString() + " Rows Processed.");
-            Console.WriteLine((watch.ElapsedTicks / rowBreakList.Count).ToString() + " ticks per row.");
-            Console.WriteLine(watch.ElapsedMilliseconds.ToString() + "ms Total.");
-            Console.WriteLine(kbDataProcessed.ToString("0.00") + " kb processed.");
-            Console.WriteLine("Done");
-        }
-
-        private void outputXMLStream()
-        {
-            //Serialize stream
-            using (StreamWriter writer = new StreamWriter(
-                appPath + Path.DirectorySeparatorChar + fileName + @".meta", false))
-            {
-                writer.Write(xmlSerializer.SerializeCSVFile(this));
-            }
         }
 
         private void refreshMetaDataVariables()
@@ -329,18 +337,29 @@ namespace CSVColumnStats
                 + "**********************************************/\r\n"
                 + "CREATE TABLE [" + fileNameNoExt + "] (";
 
+            int colNameLen = 0;
+            foreach (Column Col in columnList)
+            {
+                colNameLen = Math.Max(colNameLen, Col.columnName.Length);
+            }
+
             foreach (Column Col in columnList)
             {
                 Col.CalculateColumnMetrics();
                 sb.Append(Col.ToString());
 
+                //give format padding
+                var spaces = "";
+                for (int i = 0; i < (colNameLen - Col.columnName.Length + 1); i++) { spaces += " "; }
+
                 SQLTableCreateStatement +=
-                    "\r\n\t" + Col.sqlType + ",";
+                    "\r\n    [" + Col.columnName + "]" + spaces + Col.sqlType + ",";
             }
+
 
             // SQL Table Continued
             SQLTableCreateStatement = SQLTableCreateStatement.Substring(0, SQLTableCreateStatement.Length - 1);
-            SQLTableCreateStatement += ");\r\n\r\nGO\r\n\r\n";
+            SQLTableCreateStatement += "\r\n);\r\nGO\r\n\r\n";
 
             // File stat vars
             metaDataSQL =
@@ -350,11 +369,24 @@ namespace CSVColumnStats
                 + sb.ToString().Substring(1)
                 + "SELECT * FROM #Columns ORDER BY ColIndex\r\n\r\n";
 
-
+            numRowsProcessed = rowBreakList.Count;
             numCharsProcessed = charBufferOffset;
             msTimeToProcess = watch.ElapsedMilliseconds;
             kbDataProcessed = numCharsProcessed / 1024;
         }
+        
+        private void outputXMLStream()
+        {
+            //Serialize stream
+            using (StreamWriter writer = new StreamWriter(
+                APP_PATH + Path.DirectorySeparatorChar + fileName + @".meta", false))
+            {
+                writer.Write(xmlSerializer.SerializeCSVFile(this));
+                writer.Flush();
+                writer.Close();
+            }
+        }
+
 
     }  
 }

@@ -16,15 +16,17 @@ namespace CSVColumnStats
         {
             new string[] {"\r","[CR]\r"},
             new string[] {"\n","[LF]\n"},
-            new string[] { "[CR]\r[LF]\n", "[CR][LF]\r\n"}
+            new string[] { "[CR]\r[LF]\n", "[CR][LF]\r\n"},
+            new string[] { "\t", "\t[\\t]"}
         };
         private readonly Dictionary<string, Color> dictPatternColors = new Dictionary<string, Color>()
         {
-            {@",",Color.Black },
-            {@"\[CR\]",Color.DarkBlue },
-            {@"\[LF\]",Color.DarkGreen },
-            {"\"",Color.DarkRed },
-            {@"\|",Color.Black }
+            {@",",Color.WhiteSmoke },
+            {@"\[CR\]",Color.Blue },
+            {@"\[LF\]",Color.Green },
+            {"\"",Color.OrangeRed },
+            {@"\|",Color.WhiteSmoke },
+            {@"\[\\t\]",Color.YellowGreen }
         };
 
         private string _filePath;

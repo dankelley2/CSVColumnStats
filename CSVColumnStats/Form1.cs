@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Threading;
 
 namespace CSVColumnStats
 {
@@ -16,7 +17,7 @@ namespace CSVColumnStats
 
         string appPath = Path.GetDirectoryName(Application.ExecutablePath);
         string filePath = null;
-        TabPage targetTab = null;
+        CSVTabPage targetTab = null;
         Dictionary<string, string> dictRowDelimiters
             = new Dictionary<string, string>() {
                 {"[CR][LF]","\r\n"},
@@ -32,48 +33,77 @@ namespace CSVColumnStats
 
         private void MainWindow_Load(object sender, EventArgs e)
         {
-            watcherProgramDirectory.Path = appPath;
-            watcherProgramDirectory.Created += WatcherProgramDirectory_Created;
-            watcherProgramDirectory.Changed += WatcherProgramDirectory_Changed;
+            // File Drag Drop
+            DragEnter += new DragEventHandler(Form1_DragEnter);
+            DragDrop += new DragEventHandler(Form1_DragDrop);
+            actionsToolStripMenuItem1.HideDropDown();
 
             // Set up checked settings
             CheckBoxHasHeaders.Checked = true;
             checkBoxIsTextQualified.Checked = true;
             tabContainer.MouseClick += tabContainer_MouseClick;
+            scanForNewFiles();
 
+            // Set up BGW
+            backgroundWorker1.WorkerSupportsCancellation = true;
+            backgroundWorker1.DoWork += processFile;
+            backgroundWorker1.ProgressChanged += reportProgress;
+            backgroundWorker1.WorkerReportsProgress = true;
+            backgroundWorker1.RunWorkerCompleted += bgWorker_RunWorkerCompleted;
+
+        }
+
+        void Form1_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
+        }
+
+        void Form1_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            if (files.Count() > 0) openFile(files[0]);
+
+        }
+
+        private void scanForNewFiles()
+        {
             foreach (var file in new DirectoryInfo(appPath).GetFiles("*.meta"))
             {
                 AddMetaDataTab(file.Name, file.FullName);
             }
         }
 
-        private void WatcherProgramDirectory_Changed(object sender, FileSystemEventArgs e)
+        private void scanForSingleFile(string fileName)
         {
-            AddMetaDataTab(e.Name, e.FullPath);
-        }
-
-        private void WatcherProgramDirectory_Created(object sender, FileSystemEventArgs e)
-        {
-            AddMetaDataTab(e.Name, e.FullPath);
-
+            foreach (var file in new DirectoryInfo(appPath).GetFiles("*.meta").Where(f => f.Name == fileName + ".meta"))
+            {
+                AddMetaDataTab(file.Name, file.FullName);
+            }
         }
 
         private void AddMetaDataTab(string name, string path)
         {
             if (!tabContainer.Controls.ContainsKey(path))
+            //Add New Tab
             {
-                TabPage newTab = new TabPage();
+                CSVTabPage newTab = new CSVTabPage(File.ReadAllText(path));
                 newTab.Text = name;
                 newTab.Name = path;
                 RichTextBox newMetaData = new RichTextBox();
                 newMetaData.Dock = DockStyle.Fill;
                 newMetaData.Name = name + "MetaData";
-                newMetaData.Text = File.ReadAllText(path);
+                newMetaData.Text = newTab.rawFile;
                 newMetaData.Font = new Font("Consolas", 8, FontStyle.Regular);
 
                 newTab.Controls.Add(newMetaData);
                 tabContainer.Controls.Add(newTab);
                 newTab.Show();
+            }
+            else
+            //Refresh
+            {
+                RemoveTab((CSVTabPage)tabContainer.Controls[path]);
+                AddMetaDataTab(name, path);
             }
         }
 
@@ -89,30 +119,42 @@ namespace CSVColumnStats
 
         private void button1_Click(object sender, EventArgs e)
         {
-            var progressIndicator = new Progress<MyTaskProgressReport>(reportProgress);
-            processFile();
+            //var progressIndicator = new Progress<MyTaskProgressReport>(reportProgress);
+            if (filePath != null && checkSettings())
+            {
+                List<object> arguments = new List<object>();
+                arguments.Add(filePath);
+                arguments.Add(txtFieldDelimiter.Text.Replace("\\t", "\t"));
+                arguments.Add(dictRowDelimiters[comboBoxRowDelimiter.SelectedItem.ToString()]);
+                arguments.Add(CheckBoxHasHeaders.Checked);
+                arguments.Add(checkBoxIsTextQualified.Checked);
+                arguments.Add((int)numericUpDownSampleRows.Value);
+                arguments.Add(appPath);
+                arguments.Add(backgroundWorker1);
+
+                backgroundWorker1.RunWorkerAsync(arguments);
+            }
         }
 
-        private void reportProgress(MyTaskProgressReport progress)
+        void bgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null)
+                throw new Exception("My Custom Error Message", e.Error);
+            scanForSingleFile(Path.GetFileName(filePath));
+            fileSampleProgressBar.Value = 0;
+        }
+
+        private void reportProgress(object sender, ProgressChangedEventArgs e)
         {
 
             //label1.Text = progress.CurrentProgressMessage;
-            Console.WriteLine(string.Format("{0} out of {1}", progress.CurrentProgressAmount, progress.TotalProgressAmount));
+            fileSampleProgressBar.Value = (e.ProgressPercentage);
         }
 
-        private void processFile()
+        private void processFile(object sender, DoWorkEventArgs e)
         {
-            if (filePath != null && checkSettings())
-            {
-                new CSVFile(
-                        filePath
-                        , txtFieldDelimiter.Text
-                        , dictRowDelimiters[comboBoxRowDelimiter.SelectedItem.ToString()]
-                        , true
-                        , true
-                        , (int)numericUpDownSampleRows.Value
-                        );
-            }
+            List<object> arguments = e.Argument as List<object>;
+                new CSVFile(arguments);
         }
 
         private bool checkSettings()
@@ -138,7 +180,14 @@ namespace CSVColumnStats
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             openFileDialog.ShowDialog();
-            filePath = openFileDialog.FileName;
+            openFile(openFileDialog.FileName);
+
+
+        }
+
+        private void openFile(string fpath)
+        {
+            filePath = fpath;
             Console.WriteLine(filePath);
             txtBoxFilePath.Text = filePath;
 
@@ -147,8 +196,6 @@ namespace CSVColumnStats
             var preview = new Preview(filePath, 5000, txtBoxFilePreview);
 
             txtBoxFilePreview.Visible = true;
-
-
         }
 
         private void txtFieldDelimiter_TextChanged(object sender, EventArgs e)
@@ -168,16 +215,34 @@ namespace CSVColumnStats
                     if (tabContainer.SelectedTab.Name == "tabSettings")
                     {
                         targetTab = null;
+                        actionsToolStripMenuItem1.HideDropDown();
                     }
                     else
                     {
-                        targetTab = tabContainer.SelectedTab;
+                        actionsToolStripMenuItem1.ShowDropDown();
+                        targetTab = (CSVTabPage)tabContainer.SelectedTab;
                         return;
                     }
                     
                 }
             }
             e.Cancel = true;
+        }
+
+        private void copyAnylysisSQLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (targetTab != null)
+            {
+                Clipboard.SetText(targetTab.csvFile.metaDataSQL);
+            }
+        }
+
+        private void copyTableSQLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (targetTab != null)
+            {
+                Clipboard.SetText(targetTab.csvFile.SQLTableCreateStatement);
+            }
         }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -192,22 +257,43 @@ namespace CSVColumnStats
         {
             if (targetTab != null)
             {
-                File.Delete(targetTab.Name);
-                tabContainer.Controls.Remove(targetTab);
+                deleteRemoveTab(targetTab);
             }
         }
-    }
 
-    public class MyTaskProgressReport
-    {
-        //current progress
-        public int CurrentProgressAmount { get; set; }
+        private void deleteRemoveTab(CSVTabPage tab)
+        {
+            File.Delete(tab.Name);
+            tabContainer.Controls.Remove(tab);
+        }
 
-        //total progress
-        public int TotalProgressAmount { get; set; }
+        private void RemoveTab(CSVTabPage tab)
+        {
+            tabContainer.Controls.Remove(tab);
+        }
 
-        //some message to pass to the UI of current progress
-        public string CurrentProgressMessage { get; set; }
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (backgroundWorker1.IsBusy)
+            {
+                backgroundWorker1.CancelAsync();
+                Thread.Sleep(1000);
+            }
+            Application.Exit();
+        }
+
+        private void tabContainer_TabIndexChanged(object sender, EventArgs e)
+        {
+            if (tabContainer.SelectedTab.Name == "tabSettings")
+            {
+                targetTab = null;
+            }
+            else
+            {
+                targetTab = (CSVTabPage)tabContainer.SelectedTab;
+                return;
+            }
+        }
     }
     
 }

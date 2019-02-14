@@ -48,6 +48,9 @@
   <ItemGroup>
     <Compile Include="Column.cs" />
     <Compile Include="CSVFile.cs" />
+    <Compile Include="CSVTabPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Delimiter.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

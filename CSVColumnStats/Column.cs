@@ -11,7 +11,7 @@ namespace CSVColumnStats
     {
         private static readonly char[] NumericChars = { '.'};
         private static readonly char[] DateChars = { ':', '/', '-', ' ', ',', '.', 'A', 'P', 'M', 'a', 'p', 'm' };
-        private static readonly int[] varcharLengths = { 1, 2, 10, 50, 100, 500, 2000, 4000, 8000 };
+        private static readonly int[] varcharLengths = { 1, 2, 10, 50, 100, 500, 2000, 4000, 8000, 2147483647 };
         private static readonly int[] precisionLengths = { 10, 18 };
 
         public int columnIndex;
@@ -198,32 +198,32 @@ namespace CSVColumnStats
         {
             var strObject = new string[] {
                 columnName,
-                reccomendedLength.ToString(),
+                reccomendedLength.ToString().Replace("2147483647", "MAX"),
                 (decimalPrecision + decimalScale).ToString(),
                 decimalScale.ToString()
             };
 
             //Date
             if (isDate && maxLength > 0)
-            { sqlType = string.Format("[{0}] DATETIME", strObject); }
+            { sqlType = string.Format("DATETIME", strObject); }
             //Decimal
             else if (isNumeric && decimalPrecision > 0)
-            { sqlType = string.Format("[{0}] DECIMAL({2},{3})", strObject); }
+            { sqlType = string.Format("DECIMAL({2},{3})", strObject); }
             //Abnormally large int, possibly Claim No
             else if (isNumeric && maxLength > 9)
-            { sqlType = string.Format("[{0}] VARCHAR({1})", strObject); }
+            { sqlType = string.Format("VARCHAR({1})", strObject); }
             //Possibly Zip-Codes
             else if (isNumeric && maxLength == 5)
-            { sqlType = string.Format("[{0}] VARCHAR({1})", strObject); }
+            { sqlType = string.Format("VARCHAR({1})", strObject); }
             //Int
             else if (isNumeric && maxLength > 0)
-            { sqlType = string.Format("[{0}] INT", strObject); }
+            { sqlType = string.Format("INT", strObject); }
             //Varchar
             else if (maxLength == 0)
-            { sqlType = string.Format("[{0}] VARCHAR(100)", strObject); }
+            { sqlType = string.Format("VARCHAR(100)", strObject); }
             //Varchar
             else
-            { sqlType = string.Format("[{0}] VARCHAR({1})", strObject); }
+            { sqlType = string.Format("VARCHAR({1})", strObject); }
 
         }
 
@@ -243,7 +243,7 @@ namespace CSVColumnStats
                 sampleData.Replace("'","''")
             };
             return string.Format(
-                ", ({0}, '{1}', '{2}', {3}, {4}, {5}, '{6}', {7}, {8}, '{9}', '{10}')\r\n"
+                ", ({0}, '[{1}]', '{2}', {3}, {4}, {5}, '{6}', {7}, {8}, '{9}', '{10}')\r\n"
                 , strObject);
         }
         

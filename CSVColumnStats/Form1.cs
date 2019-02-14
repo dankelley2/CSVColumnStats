@@ -24,6 +24,7 @@ namespace CSVColumnStats
                 {"[CR]","\r"},
                 {"[LF]","\n"},
             };
+        Queue<string> bulkFileQueue = new Queue<string>();
 
 
         public MainWindow()
@@ -45,11 +46,14 @@ namespace CSVColumnStats
             scanForNewFiles();
 
             // Set up BGW
-            backgroundWorker1.WorkerSupportsCancellation = true;
-            backgroundWorker1.DoWork += processFile;
-            backgroundWorker1.ProgressChanged += reportProgress;
-            backgroundWorker1.WorkerReportsProgress = true;
-            backgroundWorker1.RunWorkerCompleted += bgWorker_RunWorkerCompleted;
+            bgwWorker_CSVFile.DoWork += processFile;
+            bgwWorker_CSVFile.ProgressChanged += reportProgress;
+            bgwWorker_CSVFile.RunWorkerCompleted += bgWorker_RunWorkerCompleted;
+
+            // Set up BGW
+            bgwWorker_BulkProcess.DoWork += processFile;
+            bgwWorker_BulkProcess.ProgressChanged += reportProgress;
+            bgwWorker_BulkProcess.RunWorkerCompleted += bgWorker_BulkRunWorkerCompleted;
 
         }
 
@@ -61,7 +65,22 @@ namespace CSVColumnStats
         void Form1_DragDrop(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            if (files.Count() > 0) openFile(files[0]);
+            if (files.Count() > 1)
+            {
+                var answer = MessageBox.Show(
+                    "Would you like to bulk analyze these files using the current settings?"
+                    , "Confirm Bulk Process"
+                    , MessageBoxButtons.YesNo);
+                if (answer == DialogResult.Yes)
+                {
+                    setupBulkProcess(files);
+                }
+            }
+            else if (files.Count() == 1)
+            {
+                openFile(files[0]);
+            }
+                
 
         }
 
@@ -119,6 +138,11 @@ namespace CSVColumnStats
 
         private void button1_Click(object sender, EventArgs e)
         {
+            bgWorker_DoWorkAsync(bgwWorker_CSVFile);
+        }
+
+        private void bgWorker_DoWorkAsync(BackgroundWorker bgw)
+        {
             //var progressIndicator = new Progress<MyTaskProgressReport>(reportProgress);
             if (filePath != null && checkSettings())
             {
@@ -130,18 +154,27 @@ namespace CSVColumnStats
                 arguments.Add(checkBoxIsTextQualified.Checked);
                 arguments.Add((int)numericUpDownSampleRows.Value);
                 arguments.Add(appPath);
-                arguments.Add(backgroundWorker1);
+                arguments.Add(bgw);
 
-                backgroundWorker1.RunWorkerAsync(arguments);
+                bgw.RunWorkerAsync(arguments);
             }
         }
 
         void bgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (e.Error != null)
-                throw new Exception("My Custom Error Message", e.Error);
+                throw new Exception("Error Processing File", e.Error);
             scanForSingleFile(Path.GetFileName(filePath));
             fileSampleProgressBar.Value = 0;
+        }
+
+        void bgWorker_BulkRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null)
+                throw new Exception("Error Processing File", e.Error);
+            scanForSingleFile(Path.GetFileName(filePath));
+            fileSampleProgressBar.Value = 0;
+            startBulkProcess();
         }
 
         private void reportProgress(object sender, ProgressChangedEventArgs e)
@@ -169,10 +202,11 @@ namespace CSVColumnStats
                 return false;
             }
 
-            if (txtBoxFilePreview.Text == "")
-            {
-                return false;
-            }
+            //Check not needed? TODO: Test
+            //if (txtBoxFilePreview.Text == "")
+            //{
+            //    return false;
+            //}
 
             return true;
         }
@@ -196,6 +230,24 @@ namespace CSVColumnStats
             var preview = new Preview(filePath, 5000, txtBoxFilePreview);
 
             txtBoxFilePreview.Visible = true;
+        }
+        private void setupBulkProcess(string[] filePaths)
+        {
+            foreach (string fpath in filePaths)
+            {
+                bulkFileQueue.Enqueue(fpath);
+            }
+            startBulkProcess();
+        }
+
+        private void startBulkProcess()
+        {
+            if (bulkFileQueue.Count > 0)
+            {
+                filePath = bulkFileQueue.Dequeue();
+                bgWorker_DoWorkAsync(bgwWorker_BulkProcess);
+            }
+
         }
 
         private void txtFieldDelimiter_TextChanged(object sender, EventArgs e)
@@ -274,9 +326,9 @@ namespace CSVColumnStats
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (backgroundWorker1.IsBusy)
+            if (bgwWorker_CSVFile.IsBusy)
             {
-                backgroundWorker1.CancelAsync();
+                bgwWorker_CSVFile.CancelAsync();
                 Thread.Sleep(1000);
             }
             Application.Exit();

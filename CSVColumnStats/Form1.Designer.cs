@@ -60,10 +60,11 @@
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.bgwWorker_CSVFile = new System.ComponentModel.BackgroundWorker();
             this.actionsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.copyAnylysisSQLToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.copyTableSQLToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.bgwWorker_BulkProcess = new System.ComponentModel.BackgroundWorker();
             this.tabContainer.SuspendLayout();
             this.tabSettings.SuspendLayout();
             this.contextMenuStripTabs.SuspendLayout();
@@ -424,7 +425,7 @@
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.aboutToolStripMenuItem.Text = "&About";
             // 
             // openFileDialog
@@ -434,9 +435,10 @@
             this.openFileDialog.ReadOnlyChecked = true;
             this.openFileDialog.ShowReadOnly = true;
             // 
-            // backgroundWorker1
+            // bgwWorker_CSVFile
             // 
-            this.backgroundWorker1.WorkerReportsProgress = true;
+            this.bgwWorker_CSVFile.WorkerReportsProgress = true;
+            this.bgwWorker_CSVFile.WorkerSupportsCancellation = true;
             // 
             // actionsToolStripMenuItem1
             // 
@@ -458,6 +460,11 @@
             this.copyTableSQLToolStripMenuItem1.Name = "copyTableSQLToolStripMenuItem1";
             this.copyTableSQLToolStripMenuItem1.Size = new System.Drawing.Size(172, 22);
             this.copyTableSQLToolStripMenuItem1.Text = "Copy &Table SQL";
+            // 
+            // bgwWorker_BulkProcess
+            // 
+            this.bgwWorker_BulkProcess.WorkerReportsProgress = true;
+            this.bgwWorker_BulkProcess.WorkerSupportsCancellation = true;
             // 
             // MainWindow
             // 
@@ -525,7 +532,7 @@
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
         private System.Windows.Forms.ComboBox comboBoxRowDelimiter;
         private System.Windows.Forms.ToolStripMenuItem deleteMetaFileToolStripMenuItem;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.ComponentModel.BackgroundWorker bgwWorker_CSVFile;
         private System.Windows.Forms.ProgressBar fileSampleProgressBar;
         private System.Windows.Forms.ToolStripMenuItem actionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem copyAnylysisSQLToolStripMenuItem;
@@ -534,6 +541,7 @@
         private System.Windows.Forms.ToolStripMenuItem actionsToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem copyAnylysisSQLToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem copyTableSQLToolStripMenuItem1;
+        private System.ComponentModel.BackgroundWorker bgwWorker_BulkProcess;
     }
 }
 

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace CSVColumnStats
 {
@@ -56,12 +57,12 @@ namespace CSVColumnStats
 
         private bool checkSettings()
         {
-            if (txtFieldDelimiter.Text.Length < 1)
+            if (txtFieldDelimiter.Text == "")
             {
                 return false;
             }
 
-            if (dictRowDelimiters[comboBoxRowDelimiter.SelectedItem.ToString()] == null)
+            if (txtRowDelimiter.Text == "")
             {
                 return false;
             }
@@ -75,6 +76,12 @@ namespace CSVColumnStats
             return true;
         }
 
+        private string replaceMetaChars(string txt)
+        {
+            var str = Regex.Unescape(txt);
+            return str;
+        }
+
         private void openFile(string fpath)
         {
             filePath = fpath;
@@ -83,7 +90,7 @@ namespace CSVColumnStats
 
             txtBoxFilePreview.Visible = false;
 
-            var preview = new Preview(filePath, 5000, txtBoxFilePreview);
+            var preview = new Preview(filePath, 10000, txtBoxFilePreview);
 
             txtBoxFilePreview.Visible = true;
         }

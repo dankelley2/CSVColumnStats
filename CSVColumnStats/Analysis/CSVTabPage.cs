@@ -17,5 +17,10 @@ namespace CSVColumnStats
             this.rawFile = rawFile;
             csvFile = (CSVFile)xmlSerializer.FromXml(rawFile, typeof(CSVFile));
         }
+
+        public CSVTabPage()
+        {
+
+        }
     }
 }

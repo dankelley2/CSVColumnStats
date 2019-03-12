@@ -81,7 +81,7 @@ namespace CSVColumnStats
             }
 
         }
-
+        
         private void CheckIsNumeric(char[] chars)
         {
             int sign = 0;

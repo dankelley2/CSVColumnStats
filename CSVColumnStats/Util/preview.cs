@@ -14,19 +14,21 @@ namespace CSVColumnStats
     {
         private readonly List<string[]>  listReplace = new List<string[]>()
         {
-            new string[] {"\r","[CR]\r"},
-            new string[] {"\n","[LF]\n"},
-            new string[] { "[CR]\r[LF]\n", "[CR][LF]\r\n"},
-            new string[] { "\t", "\t[\\t]"}
+            new string[] {"\r","[\\r]\r"},
+            new string[] {"\n","[\\n]\n"},
+            new string[] { "[\\r]\r[\\n]\n", "[\\r][\\n]\r\n"},
+            new string[] { "\t", "\t[\\t]"},
+            new string[] { " ", "·"}
         };
         private readonly Dictionary<string, Color> dictPatternColors = new Dictionary<string, Color>()
         {
             {@",",Color.WhiteSmoke },
-            {@"\[CR\]",Color.Blue },
-            {@"\[LF\]",Color.Green },
-            {"\"",Color.OrangeRed },
+            {@"\[\\r\]",Color.Blue },
+            {@"\[\\n\]",Color.Green },
+            {"\"[^\"]*?\"",Color.OrangeRed },
             {@"\|",Color.WhiteSmoke },
-            {@"\[\\t\]",Color.YellowGreen }
+            {@"\[\\t\]",Color.YellowGreen },
+            {@"·",Color.DarkSlateGray }
         };
 
         private string _filePath;
@@ -53,6 +55,7 @@ namespace CSVColumnStats
                 }
                 
             }
+            rtb.ResetText();
             rtb.ForeColor = Color.Gray;
             rtb.Text = sampleData;
 
@@ -75,7 +78,10 @@ namespace CSVColumnStats
                 rtb.SelectionStart = m.Index;
                 rtb.SelectionLength = m.Length;
                 rtb.SelectionColor = foreColor;
-                rtb.SelectionFont = new Font(rtb.Font, FontStyle.Bold);
+                if (regExPattern == "·")
+                    rtb.SelectionFont = new Font(rtb.Font, FontStyle.Regular);
+                else
+                    rtb.SelectionFont = new Font(rtb.Font, FontStyle.Bold);
                 //rtb.SelectionBackColor = rtb.BackColor;
             }
 

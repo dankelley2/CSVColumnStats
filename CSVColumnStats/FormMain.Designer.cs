@@ -49,10 +49,12 @@
             this.groupBoxDelimiter = new System.Windows.Forms.GroupBox();
             this.txtFieldDelimiter = new System.Windows.Forms.TextBox();
             this.groupBoxLineEnding = new System.Windows.Forms.GroupBox();
-            this.comboBoxRowDelimiter = new System.Windows.Forms.ComboBox();
+            this.txtRowDelimiter = new System.Windows.Forms.TextBox();
             this.txtBoxFilePath = new System.Windows.Forms.TextBox();
             this.groupBoxPreview = new System.Windows.Forms.GroupBox();
             this.txtBoxFilePreview = new System.Windows.Forms.RichTextBox();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.splitContainer_MetaData = new System.Windows.Forms.SplitContainer();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -78,6 +80,9 @@
             this.groupBoxDelimiter.SuspendLayout();
             this.groupBoxLineEnding.SuspendLayout();
             this.groupBoxPreview.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer_MetaData)).BeginInit();
+            this.splitContainer_MetaData.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -95,12 +100,14 @@
             // tabContainer
             // 
             this.tabContainer.Controls.Add(this.tabSettings);
+            this.tabContainer.Controls.Add(this.tabPage1);
             this.tabContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabContainer.Location = new System.Drawing.Point(0, 24);
             this.tabContainer.Name = "tabContainer";
             this.tabContainer.SelectedIndex = 0;
             this.tabContainer.Size = new System.Drawing.Size(871, 450);
             this.tabContainer.TabIndex = 1;
+            this.tabContainer.Selecting += new System.Windows.Forms.TabControlCancelEventHandler(this.tabContainer_TabIndexChanged);
             this.tabContainer.TabIndexChanged += new System.EventHandler(this.tabContainer_TabIndexChanged);
             // 
             // tabSettings
@@ -309,12 +316,11 @@
             this.txtFieldDelimiter.TabIndex = 0;
             this.txtFieldDelimiter.Text = ",";
             this.txtFieldDelimiter.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.txtFieldDelimiter.TextChanged += new System.EventHandler(this.txtFieldDelimiter_TextChanged);
             // 
             // groupBoxLineEnding
             // 
             this.groupBoxLineEnding.BackColor = System.Drawing.Color.White;
-            this.groupBoxLineEnding.Controls.Add(this.comboBoxRowDelimiter);
+            this.groupBoxLineEnding.Controls.Add(this.txtRowDelimiter);
             this.groupBoxLineEnding.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBoxLineEnding.Location = new System.Drawing.Point(5, 5);
             this.groupBoxLineEnding.Name = "groupBoxLineEnding";
@@ -323,22 +329,18 @@
             this.groupBoxLineEnding.TabStop = false;
             this.groupBoxLineEnding.Text = "Row Delimiter Sequence";
             // 
-            // comboBoxRowDelimiter
+            // txtRowDelimiter
             // 
-            this.comboBoxRowDelimiter.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.comboBoxRowDelimiter.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
-            this.comboBoxRowDelimiter.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.comboBoxRowDelimiter.Font = new System.Drawing.Font("Consolas", 15.75F);
-            this.comboBoxRowDelimiter.FormattingEnabled = true;
-            this.comboBoxRowDelimiter.Items.AddRange(new object[] {
-            "[CR][LF]",
-            "[CR]",
-            "[LF]"});
-            this.comboBoxRowDelimiter.Location = new System.Drawing.Point(3, 16);
-            this.comboBoxRowDelimiter.Name = "comboBoxRowDelimiter";
-            this.comboBoxRowDelimiter.Size = new System.Drawing.Size(159, 32);
-            this.comboBoxRowDelimiter.TabIndex = 0;
-            this.comboBoxRowDelimiter.Text = "[CR][LF]";
+            this.txtRowDelimiter.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtRowDelimiter.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtRowDelimiter.Font = new System.Drawing.Font("Consolas", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtRowDelimiter.Location = new System.Drawing.Point(3, 16);
+            this.txtRowDelimiter.MaxLength = 10;
+            this.txtRowDelimiter.Name = "txtRowDelimiter";
+            this.txtRowDelimiter.Size = new System.Drawing.Size(159, 32);
+            this.txtRowDelimiter.TabIndex = 1;
+            this.txtRowDelimiter.Text = "\\r\\n";
+            this.txtRowDelimiter.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // txtBoxFilePath
             // 
@@ -379,6 +381,30 @@
             this.txtBoxFilePreview.Text = "";
             this.txtBoxFilePreview.WordWrap = false;
             // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.splitContainer_MetaData);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(863, 424);
+            this.tabPage1.TabIndex = 1;
+            this.tabPage1.Text = "tabPage1";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // splitContainer_MetaData
+            // 
+            this.splitContainer_MetaData.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer_MetaData.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer_MetaData.Name = "splitContainer_MetaData";
+            // 
+            // splitContainer_MetaData.Panel1
+            // 
+            this.splitContainer_MetaData.Panel1.DoubleClick += new System.EventHandler(this.splitContainer_MetaData_Panel1_DoubleClick);
+            this.splitContainer_MetaData.Size = new System.Drawing.Size(857, 418);
+            this.splitContainer_MetaData.SplitterDistance = 242;
+            this.splitContainer_MetaData.TabIndex = 0;
+            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -403,14 +429,14 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.MenuStrip_open_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.MenuStrip_exit_Click);
             // 
@@ -442,12 +468,14 @@
             this.copyAnylysisSQLToolStripMenuItem1.Name = "copyAnylysisSQLToolStripMenuItem1";
             this.copyAnylysisSQLToolStripMenuItem1.Size = new System.Drawing.Size(172, 22);
             this.copyAnylysisSQLToolStripMenuItem1.Text = "Copy &Anylysis SQL";
+            this.copyAnylysisSQLToolStripMenuItem1.Click += new System.EventHandler(this.MenuStrip_copyAnylysisSQL_Click);
             // 
             // copyTableSQLToolStripMenuItem1
             // 
             this.copyTableSQLToolStripMenuItem1.Name = "copyTableSQLToolStripMenuItem1";
             this.copyTableSQLToolStripMenuItem1.Size = new System.Drawing.Size(172, 22);
             this.copyTableSQLToolStripMenuItem1.Text = "Copy &Table SQL";
+            this.copyTableSQLToolStripMenuItem1.Click += new System.EventHandler(this.MenuStrip_copyTableSQL_Click);
             // 
             // openFileDialog
             // 
@@ -496,7 +524,11 @@
             this.groupBoxDelimiter.ResumeLayout(false);
             this.groupBoxDelimiter.PerformLayout();
             this.groupBoxLineEnding.ResumeLayout(false);
+            this.groupBoxLineEnding.PerformLayout();
             this.groupBoxPreview.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer_MetaData)).EndInit();
+            this.splitContainer_MetaData.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -530,7 +562,6 @@
         private System.Windows.Forms.CheckBox CheckBoxHasHeaders;
         private System.Windows.Forms.ContextMenuStrip contextMenuStripTabs;
         private System.Windows.Forms.ToolStripMenuItem closeToolStripMenuItem;
-        private System.Windows.Forms.ComboBox comboBoxRowDelimiter;
         private System.Windows.Forms.ToolStripMenuItem deleteMetaFileToolStripMenuItem;
         private System.ComponentModel.BackgroundWorker bgwWorker_CSVFile;
         private System.Windows.Forms.ProgressBar fileSampleProgressBar;
@@ -542,6 +573,9 @@
         private System.Windows.Forms.ToolStripMenuItem copyAnylysisSQLToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem copyTableSQLToolStripMenuItem1;
         private System.ComponentModel.BackgroundWorker bgwWorker_BulkProcess;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TextBox txtRowDelimiter;
+        private System.Windows.Forms.SplitContainer splitContainer_MetaData;
     }
 }
 

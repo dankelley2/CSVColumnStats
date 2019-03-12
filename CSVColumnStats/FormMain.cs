@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Threading;
+using System.Reflection;
 
 namespace CSVColumnStats
 {
@@ -18,12 +19,6 @@ namespace CSVColumnStats
         string appPath = Path.GetDirectoryName(Application.ExecutablePath);
         string filePath = null;
         CSVTabPage targetTab = null;
-        Dictionary<string, string> dictRowDelimiters
-            = new Dictionary<string, string>() {
-                {"[CR][LF]","\r\n"},
-                {"[CR]","\r"},
-                {"[LF]","\n"},
-            };
         Queue<string> bulkFileQueue = new Queue<string>();
 
 
@@ -34,10 +29,11 @@ namespace CSVColumnStats
 
         private void MainWindow_Load(object sender, EventArgs e)
         {
+
             // File Drag Drop
             DragEnter += new DragEventHandler(FormMain_DragEnter);
             DragDrop += new DragEventHandler(FormMain_DragDrop);
-            actionsToolStripMenuItem1.HideDropDown();
+            actionsToolStripMenuItem1.Available = false;
 
             // Set up checked settings
             CheckBoxHasHeaders.Checked = true;
@@ -64,13 +60,12 @@ namespace CSVColumnStats
 
         private void bgWorker_DoWorkAsync(BackgroundWorker bgw)
         {
-            //var progressIndicator = new Progress<MyTaskProgressReport>(reportProgress);
             if (filePath != null && checkSettings())
             {
                 List<object> arguments = new List<object>();
                 arguments.Add(filePath);
-                arguments.Add(txtFieldDelimiter.Text.Replace("\\t", "\t"));
-                arguments.Add(dictRowDelimiters[comboBoxRowDelimiter.SelectedItem.ToString()]);
+                arguments.Add(replaceMetaChars(txtFieldDelimiter.Text));
+                arguments.Add(replaceMetaChars(txtRowDelimiter.Text));
                 arguments.Add(CheckBoxHasHeaders.Checked);
                 arguments.Add(checkBoxIsTextQualified.Checked);
                 arguments.Add((int)numericUpDownSampleRows.Value);
@@ -153,17 +148,22 @@ namespace CSVColumnStats
             if (tabContainer.SelectedTab.Name == "tabSettings")
             {
                 targetTab = null;
+                actionsToolStripMenuItem1.Available = false;
             }
             else
             {
-                targetTab = (CSVTabPage)tabContainer.SelectedTab;
+                try
+                {
+                    targetTab = (CSVTabPage)tabContainer.SelectedTab;
+                    actionsToolStripMenuItem1.Available = true;
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine("Object was not CSVTabPage");
+                    actionsToolStripMenuItem1.Available = false;
+                }
                 return;
             }
-        }
-
-        private void txtFieldDelimiter_TextChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void MenuStrip_open_Click(object sender, EventArgs e)
@@ -184,6 +184,16 @@ namespace CSVColumnStats
             Application.Exit();
         }
 
+        private void MenuStrip_copyAnylysisSQL_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem_copyAnylysisSQL_Click(sender, e);
+        }
+
+        private void MenuStrip_copyTableSQL_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem_copyTableSQL_Click(sender, e);
+        }
+
         private void ToolStripMenuTabs_Opening(object sender, CancelEventArgs e)
         {
             Point p = tabContainer.PointToClient(Cursor.Position);
@@ -196,11 +206,9 @@ namespace CSVColumnStats
                     if (tabContainer.SelectedTab.Name == "tabSettings")
                     {
                         targetTab = null;
-                        actionsToolStripMenuItem1.HideDropDown();
                     }
                     else
                     {
-                        actionsToolStripMenuItem1.ShowDropDown();
                         targetTab = (CSVTabPage)tabContainer.SelectedTab;
                         return;
                     }
@@ -240,6 +248,22 @@ namespace CSVColumnStats
             {
                 deleteRemoveTab(targetTab);
             }
+        }
+
+        private void splitContainer_MetaData_Panel1_DoubleClick(object sender, EventArgs e)
+        {
+            //var box = new WarningPanel(comboBox1);
+            //box.Dock = DockStyle.Fill;
+            //splitContainer_MetaData.Panel1.Controls.Add(box);
+            //box.Items.Add(new DropDownItem(""));
+
+            //Assembly myAssembly = Assembly.GetExecutingAssembly();
+            //string[] names = myAssembly.GetManifestResourceNames();
+            //foreach (string name in names)
+            //{
+            //    Console.WriteLine(name);
+            //}
+
         }
     }
     

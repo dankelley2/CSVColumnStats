@@ -4,11 +4,11 @@ using System.Xml;
 
 namespace CSVColumnStats
 {
-    internal class CSVTreeView : TreeView
+    internal class RawDataTreeView : TreeView
     {
         private XmlDocument xmlDoc;
 
-        public CSVTreeView(XmlDocument xmlDoc)
+        public RawDataTreeView(XmlDocument xmlDoc)
         {
             this.xmlDoc = xmlDoc;
             this.Dock = DockStyle.Fill;

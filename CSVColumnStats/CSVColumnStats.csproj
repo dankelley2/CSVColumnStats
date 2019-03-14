@@ -47,17 +47,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analysis\CSVFileDependencies\Column.cs" />
-    <Compile Include="Analysis\CSVFileDependencies\ColumnRuleSet.cs" />
     <Compile Include="Analysis\CSVFile.cs" />
-    <Compile Include="Analysis\MetaDataViewDependencies\CSVSplitContainer.cs">
+    <Compile Include="Analysis\MetaDataViewDependencies\MetaDataSplitContainer.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Analysis\MetaDataViewDependencies\CSVTabPage.cs">
+    <Compile Include="Analysis\MetaDataViewDependencies\RawDataTabPage.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Analysis\CSVFileDependencies\Delimiter.cs" />
     <Compile Include="Analysis\CSVFileDependencies\Warning.cs" />
-    <Compile Include="Analysis\MetaDataViewDependencies\CSVTreeView.cs">
+    <Compile Include="Analysis\MetaDataViewDependencies\RawDataTabControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Analysis\MetaDataViewDependencies\RawDataTreeView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Analysis\MetaDataViewDependencies\SummaryRichTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="FormMain.cs">

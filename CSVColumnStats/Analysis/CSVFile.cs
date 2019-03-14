@@ -18,10 +18,6 @@ namespace CSVColumnStats
         public bool         HAS_HEADERS;
         public bool         TEXT_QUALIFIED;
         public int          NUM_SAMPLE_LINES;
-        
-        //Meaty Lists
-        public List<Column> columnList = new List<Column>();
-        public List<Warning> warningList = new List<Warning>();
 
         //Derived Vars
         public string       fileName;
@@ -35,6 +31,9 @@ namespace CSVColumnStats
         public float        kbDataProcessed;
         public string       metaDataSQL;
         public string       SQLTableCreateStatement;
+        //Meaty Lists
+        public List<Column> columnList = new List<Column>();
+        public List<Warning> warningList = new List<Warning>();
 
         private string      APP_PATH;
         private char[]      charBuffer = new char[20480];

@@ -34,14 +34,14 @@ namespace CSVColumnStats
             if (!tabContainer.Controls.ContainsKey(path))
             //Add New Tab
             {
-                CSVTabPage newTab = new CSVTabPage(name, path, File.ReadAllText(path));
+                RawDataTabPage newTab = new RawDataTabPage(name, path, File.ReadAllText(path));
                 tabContainer.Controls.Add(newTab);
                 newTab.Show();
             }
             else
             //Refresh
             {
-                RemoveTab((CSVTabPage)tabContainer.Controls[path]);
+                RemoveTab((RawDataTabPage)tabContainer.Controls[path]);
                 AddMetaDataTab(name, path);
             }
         }
@@ -105,13 +105,13 @@ namespace CSVColumnStats
 
         }
 
-        private void deleteRemoveTab(CSVTabPage tab)
+        private void deleteRemoveTab(RawDataTabPage tab)
         {
             File.Delete(tab.Name);
             tabContainer.Controls.Remove(tab);
         }
 
-        private void RemoveTab(CSVTabPage tab)
+        private void RemoveTab(RawDataTabPage tab)
         {
             tabContainer.Controls.Remove(tab);
         }

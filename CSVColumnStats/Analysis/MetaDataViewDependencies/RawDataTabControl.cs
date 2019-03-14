@@ -5,29 +5,33 @@ using System.Xml;
 
 namespace CSVColumnStats
 {
-    internal class CSVSplitContainer : SplitContainer
+    internal class RawDataTabControl : TabControl
     {
         private XmlDocument xmlDoc;
         private string rawFile;
-        public CSVSplitContainer(XmlDocument xmlDoc, string rawFile)
+
+        public RawDataTabControl(XmlDocument xmlDoc, string rawFile)
         {
             this.xmlDoc = xmlDoc;
-            this.Dock = DockStyle.Fill;
             this.rawFile = rawFile;
-           // this.SplitterDistance = 100;// (int)(Parent.Width * .4);
+            this.TabPages.Clear();
+            this.TabPages.Add("Raw XML View");
+            this.TabPages.Add("XML Treeview");
+            this.Dock = DockStyle.Fill;
             AddChildControls();
         }
 
         private void AddChildControls()
         {
-            this.Panel1.Controls.Add(new CSVTreeView(xmlDoc));
+
 
             RichTextBox newMetaData = new RichTextBox();
             newMetaData.Dock = DockStyle.Fill;
             newMetaData.Name = "RawMetaData";
             newMetaData.Text = rawFile;
             newMetaData.Font = new Font("Consolas", 8, FontStyle.Regular);
-            this.Panel2.Controls.Add(newMetaData);
+            this.TabPages[0].Controls.Add(newMetaData);
+            this.TabPages[1].Controls.Add(new RawDataTreeView(xmlDoc));
         }
     }
 }

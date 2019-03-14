@@ -9,14 +9,14 @@ using System.Xml;
 
 namespace CSVColumnStats
 {
-    class CSVTabPage : TabPage
+    class RawDataTabPage : TabPage
     {
         public string rawFile;
         public CSVFile csvFile;
 
         private XmlDocument xmlDoc;
 
-        public CSVTabPage(string name, string path, string rawFile)
+        public RawDataTabPage(string name, string path, string rawFile)
         {
             this.Text = name;
             this.Name = path;
@@ -30,10 +30,10 @@ namespace CSVColumnStats
 
         private void AddChildControls()
         {
-            Controls.Add(new CSVSplitContainer(xmlDoc, rawFile));
+            Controls.Add(new MetaDataSplitContainer(xmlDoc, rawFile, csvFile));
         }
 
-        public CSVTabPage()
+        public RawDataTabPage()
         {
 
         }

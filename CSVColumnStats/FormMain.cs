@@ -18,7 +18,7 @@ namespace CSVColumnStats
 
         string appPath = Path.GetDirectoryName(Application.ExecutablePath);
         string filePath = null;
-        CSVTabPage targetTab = null;
+        RawDataTabPage targetTab = null;
         Queue<string> bulkFileQueue = new Queue<string>();
 
 
@@ -154,7 +154,7 @@ namespace CSVColumnStats
             {
                 try
                 {
-                    targetTab = (CSVTabPage)tabContainer.SelectedTab;
+                    targetTab = (RawDataTabPage)tabContainer.SelectedTab;
                     actionsToolStripMenuItem1.Available = true;
                 }
                 catch(Exception ex)
@@ -209,7 +209,7 @@ namespace CSVColumnStats
                     }
                     else
                     {
-                        targetTab = (CSVTabPage)tabContainer.SelectedTab;
+                        targetTab = (RawDataTabPage)tabContainer.SelectedTab;
                         return;
                     }
 
@@ -263,6 +263,11 @@ namespace CSVColumnStats
             //{
             //    Console.WriteLine(name);
             //}
+
+        }
+
+        private void tabContainer_TabIndexChanged(object sender, TabControlCancelEventArgs e)
+        {
 
         }
     }

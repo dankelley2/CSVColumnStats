@@ -169,7 +169,8 @@ namespace CSVColumnStats
         private void MenuStrip_open_Click(object sender, EventArgs e)
         {
             openFileDialog.ShowDialog();
-            openFile(openFileDialog.FileName);
+            if (File.Exists(openFileDialog.FileName))
+                openFile(openFileDialog.FileName);
 
 
         }

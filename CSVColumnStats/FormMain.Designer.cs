@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.contextMenuStripTabs = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.actionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.copyAnylysisSQLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -474,6 +475,7 @@
             this.ClientSize = new System.Drawing.Size(871, 474);
             this.Controls.Add(this.tabContainer);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(550, 512);
             this.Name = "MainWindow";

@@ -506,7 +506,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.MinimumSize = new System.Drawing.Size(550, 512);
             this.Name = "MainWindow";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "CSV Analyzer";
             this.Load += new System.EventHandler(this.MainWindow_Load);
             this.tabContainer.ResumeLayout(false);

@@ -18,6 +18,10 @@ namespace CSVColumnStats
         public bool         HAS_HEADERS;
         public bool         TEXT_QUALIFIED;
         public int          NUM_SAMPLE_LINES;
+        
+        //Meaty Lists
+        public List<Column> columnList = new List<Column>();
+        public List<Warning> warningList = new List<Warning>();
 
         //Derived Vars
         public string       fileName;
@@ -31,11 +35,11 @@ namespace CSVColumnStats
         public float        kbDataProcessed;
         public string       metaDataSQL;
         public string       SQLTableCreateStatement;
-        public List<Column> columnList = new List<Column>();
 
         private string      APP_PATH;
         private char[]      charBuffer = new char[20480];
         private long        charBufferOffset = 0;
+        private int         charBufferPointer;
         private char[]      fieldBuffer = new char[500000];
         private int         fieldBufferWriteIndex = -1;
         private int        fieldBufferStartIndex = -1;
@@ -44,6 +48,7 @@ namespace CSVColumnStats
         private bool        quotesOpen = false;
         private bool        trimNextField = false;
         private bool        abort = false;
+        private bool        rowError = false;
         private BackgroundWorker BGWWorker;
 
         //DEBUG
@@ -77,91 +82,93 @@ namespace CSVColumnStats
             }
 
         }
-        public CSVFile(string FILE_PATH, string COLUMN_SEPARATOR, string ROW_SEPARATOR,
-                        bool HAS_HEADERS, bool TEXT_QUALIFIED, int NUM_SAMPLE_LINES, string AppPath)
-        {
-            this.FILE_PATH = FILE_PATH;
-            this.COLUMN_SEPARATOR = new Delimiter(COLUMN_SEPARATOR);
-            this.ROW_SEPARATOR = new Delimiter(ROW_SEPARATOR);
-            this.HAS_HEADERS = HAS_HEADERS;
-            this.TEXT_QUALIFIED = TEXT_QUALIFIED;
-            this.NUM_SAMPLE_LINES = NUM_SAMPLE_LINES;
-            this.APP_PATH = AppPath;
-
-            if (true)//checkFileIntegrity())
-            {
-                this.fileName = Path.GetFileName(FILE_PATH);
-                this.fileNameNoExt = Path.GetFileNameWithoutExtension(FILE_PATH);
-                this.fileDirectory = Path.GetDirectoryName(FILE_PATH);
-                getColumnStats();
-                if (!abort)
-                {
-                    metaDataUpdateAndExport();
-                }
-            }
-
-        }
 
         public string getColumnStats()
         {
-            using(System.IO.StreamReader sourceFS = new System.IO.StreamReader(FILE_PATH))
+            try
             {
-                watch = Stopwatch.StartNew();
-                while (rowBreakList.Count() < NUM_SAMPLE_LINES+1 && (!sourceFS.EndOfStream))
+                using (System.IO.StreamReader sourceFS = new System.IO.StreamReader(FILE_PATH))
                 {
-                    // Read chars into buffer
-                    var charsRead = (char)sourceFS.Read(charBuffer, 0, charBuffer.Length);
-                    charBufferOffset += charsRead;
-
-                    //Check for cancellation
-                    if (BGWWorker.CancellationPending)
+                    watch = Stopwatch.StartNew();
+                    while (rowBreakList.Count() < NUM_SAMPLE_LINES + 1 && (!sourceFS.EndOfStream))
                     {
-                        abort = true;
-                        break;
-                    }
+                        // Read chars into buffer
+                        var charsRead = (char)sourceFS.Read(charBuffer, 0, charBuffer.Length);
+                        charBufferOffset += charsRead;
 
-                    // Loop through buffer
-                    for (int i = 0; i < charsRead; i++)
-                    {
-                        // Assign current char
-                        char c = charBuffer[i];
-
-                        // Add to Data Buffer
-                        AddToFieldBuffer(c);
-
-                        if (IsInsideQuotes(c))
+                        //Check for cancellation
+                        if (BGWWorker.CancellationPending)
                         {
-                            trimNextField = true;
-                            continue;
+                            abort = true;
+                            break;
                         }
 
-                        if (COLUMN_SEPARATOR.delimiterFound(c))
+                        // Loop through buffer
+                        for (charBufferPointer = 0; charBufferPointer < charsRead; charBufferPointer++)
                         {
+                            // Assign current char
+                            char c = charBuffer[charBufferPointer];
 
-                            var charData = MeasureThenStartNewField(COLUMN_SEPARATOR.Length);
-                            CheckAddColumn(charData);
-                            UpdateColumnStats(charData);
-                            // Increment Column
-                            columnIndex++;
-                        }
-                        else if (ROW_SEPARATOR.delimiterFound(c))
-                        {
-                            var charData = MeasureThenStartNewField(ROW_SEPARATOR.Length);
-                            CheckAddColumn(charData);
-                            UpdateColumnStats(charData);
-                            AddRow(charBufferOffset+i);
-                            
-                            // Column zero again
-                            columnIndex = 0;
+                            // Add to Data Buffer
+                            AddToFieldBuffer(c);
 
-                            if (rowBreakList.Count() >= NUM_SAMPLE_LINES + 1)
+                            if (IsInsideQuotes(c))
                             {
-                                break;
+                                trimNextField = true;
+                                continue;
+                            }
+
+                            if (COLUMN_SEPARATOR.delimiterFound(c))
+                            {
+                                if (!rowError)
+                                {
+                                    if (rowBreakList.Count > 1 && columnIndex == columnList.Count-1)
+                                    {
+                                        warningList.Add(new Warning()
+                                        {
+                                            Label = "DataError",
+                                            Text = string.Format("Extra Delimiter found on line {0}", rowBreakList.Count - 1),
+                                            Severity = 10
+                                        });
+                                        //Too Many Delimiters
+                                        rowError = true;
+                                        continue;
+                                    }
+
+                                    //Add New Columns' Data
+                                    var charData = MeasureThenStartNewField(COLUMN_SEPARATOR.Length);
+                                    CheckAddColumn(charData);
+                                    UpdateColumnStats(charData);
+                                    // Increment Column
+                                    columnIndex++;
+                                    
+                                }
+
+                            }
+                            else if (ROW_SEPARATOR.delimiterFound(c))
+                            {
+                                var charData = MeasureThenStartNewField(ROW_SEPARATOR.Length);
+                                CheckAddColumn(charData);
+                                UpdateColumnStats(charData);
+                                AddRow(charBufferOffset + charBufferPointer);
+
+                                // Column zero again
+                                columnIndex = 0;
+                                rowError = false;
+                                if (rowBreakList.Count() >= NUM_SAMPLE_LINES + 1)
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
+                    watch.Stop();
                 }
-                watch.Stop();
+            }
+            catch(Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show("Row: " + (rowBreakList.Count-1).ToString());
+                throw;
             }
             return fileName;
         }
@@ -381,7 +388,7 @@ namespace CSVColumnStats
             using (StreamWriter writer = new StreamWriter(
                 APP_PATH + Path.DirectorySeparatorChar + fileName + @".meta", false))
             {
-                writer.Write(xmlSerializer.SerializeCSVFile(this));
+                writer.Write(xmlTools.SerializeCSVFile(this));
                 writer.Flush();
                 writer.Close();
             }

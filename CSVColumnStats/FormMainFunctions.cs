@@ -34,16 +34,7 @@ namespace CSVColumnStats
             if (!tabContainer.Controls.ContainsKey(path))
             //Add New Tab
             {
-                CSVTabPage newTab = new CSVTabPage(File.ReadAllText(path));
-                newTab.Text = name;
-                newTab.Name = path;
-                RichTextBox newMetaData = new RichTextBox();
-                newMetaData.Dock = DockStyle.Fill;
-                newMetaData.Name = name + "MetaData";
-                newMetaData.Text = newTab.rawFile;
-                newMetaData.Font = new Font("Consolas", 8, FontStyle.Regular);
-
-                newTab.Controls.Add(newMetaData);
+                CSVTabPage newTab = new CSVTabPage(name, path, File.ReadAllText(path));
                 tabContainer.Controls.Add(newTab);
                 newTab.Show();
             }

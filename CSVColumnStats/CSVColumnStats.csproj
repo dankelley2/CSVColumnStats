@@ -49,10 +49,17 @@
     <Compile Include="Analysis\CSVFileDependencies\Column.cs" />
     <Compile Include="Analysis\CSVFileDependencies\ColumnRuleSet.cs" />
     <Compile Include="Analysis\CSVFile.cs" />
-    <Compile Include="Analysis\CSVTabPage.cs">
+    <Compile Include="Analysis\MetaDataViewDependencies\CSVSplitContainer.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Analysis\MetaDataViewDependencies\CSVTabPage.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Analysis\CSVFileDependencies\Delimiter.cs" />
+    <Compile Include="Analysis\CSVFileDependencies\Warning.cs" />
+    <Compile Include="Analysis\MetaDataViewDependencies\CSVTreeView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -65,10 +72,7 @@
     <Compile Include="Util\preview.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Analysis\MetaDataViewDependencies\WarningPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Util\xmlSerializer.cs" />
+    <Compile Include="Util\xmlTools.cs" />
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>

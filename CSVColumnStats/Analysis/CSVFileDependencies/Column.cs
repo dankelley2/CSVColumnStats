@@ -220,7 +220,7 @@ namespace CSVColumnStats
             { sqlType = string.Format("INT", strObject); }
             //Varchar
             else if (maxLength == 0)
-            { sqlType = string.Format("VARCHAR(100)", strObject); }
+            { sqlType = string.Format("VARCHAR(250)", strObject); }
             //Varchar
             else
             { sqlType = string.Format("VARCHAR({1})", strObject); }

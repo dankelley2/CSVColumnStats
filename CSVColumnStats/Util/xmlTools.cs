@@ -17,15 +17,14 @@ namespace CSVColumnStats
         
 
         //Returns the target namespace for the serializer.
-        public static string TargetNamespace { get { return @"http://www.w3.org/2001/XMLSchema"; } }
+        public static string TargetNamespace { get { return @"www.microsoft.com/SqlServer/Dts"; } }
 
         public static XmlSerializerNamespaces GetNamespaces()
         {
 
             XmlSerializerNamespaces ns;
             ns = new XmlSerializerNamespaces();
-            ns.Add("xs", "http://www.w3.org/2001/XMLSchema");
-            ns.Add("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+            ns.Add("DTS", "www.microsoft.com/SqlServer/Dts");
             return ns;
 
         }
